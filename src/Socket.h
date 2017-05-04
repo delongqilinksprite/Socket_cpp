@@ -8,7 +8,9 @@
 #ifndef __SOCKET_H
 #define __SOCKET_H
 
-#include <stdio.h>  
+#include <stdio.h> 
+#include <iostream>
+#include <string> 
 #include <stdlib.h>  
 #include <string.h>  
 #include <errno.h>  
@@ -18,9 +20,31 @@
 #include <sys/socket.h>  
 #include <netinet/in.h>  
 #include <arpa/inet.h>
-#include <fcntl.h>
+#include <fcntl.h>      
+#include <netdb.h>  
+#include <net/if.h>   
+#include <sys/ioctl.h>   
+#include <sys/stat.h>
+#include <time.h>
+#include <sys/time.h>
+#include <math.h>   
 
-#define MaxLen 4096
+#define MAC_SIZE    18  
+#define IP_SIZE     16 
+#define MaxLen      4096
+
+using namespace std;
+
+class SysMsg
+{
+public:
+	SysMsg(void);
+	~SysMsg(void);
+	string get_ip_by_domain(const char *domain);   
+	string get_local_mac(const char *eth_inf);  
+	string get_local_ip(const char *eth_inf);
+	string get_system_time(void);
+};
 
 class TCPServer
 {

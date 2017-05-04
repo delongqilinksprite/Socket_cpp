@@ -7,6 +7,107 @@
 
 #include "Socket.h"
 
+/********************SysMsg**********************/
+
+SysMsg::SysMsg(void)
+{
+	//
+}
+
+
+SysMsg::~SysMsg(void)
+{
+	//
+}
+
+string SysMsg::get_ip_by_domain(const char *domain)
+{
+	char ip[128];
+	char **pptr;  
+	struct hostent *hptr;  
+	hptr = gethostbyname(domain);  
+	if(NULL == hptr)  
+	{  
+		printf("gethostbyname error for host:%s/n", domain);  
+		return NULL;  
+	}  
+	for(pptr = hptr->h_addr_list ; *pptr != NULL; pptr++)  
+	{  
+		if (NULL != inet_ntop(hptr->h_addrtype, *pptr, ip, IP_SIZE) )  
+		{  
+			return string(ip);
+		}  
+	}  
+	return NULL;  
+}
+
+string SysMsg::get_local_mac(const char *eth_inf)
+{
+	char mac[128];
+	struct ifreq ifr;  
+	int sd;  
+	bzero(&ifr, sizeof(struct ifreq));  
+	if( (sd = socket(AF_INET, SOCK_STREAM, 0)) < 0)  
+	{  
+		printf("get %s mac address socket creat error\n", eth_inf);  
+		return NULL;  
+	}  
+	strncpy(ifr.ifr_name, eth_inf, sizeof(ifr.ifr_name) - 1);  
+	if(ioctl(sd, SIOCGIFHWADDR, &ifr) < 0)  
+	{  
+		printf("get %s mac address error\n", eth_inf);  
+		close(sd);  
+		return NULL;  
+	}  
+	snprintf(mac, MAC_SIZE, "%02x:%02x:%02x:%02x:%02x:%02x",  
+	(unsigned char)ifr.ifr_hwaddr.sa_data[0],   
+	(unsigned char)ifr.ifr_hwaddr.sa_data[1],  
+	(unsigned char)ifr.ifr_hwaddr.sa_data[2],   
+	(unsigned char)ifr.ifr_hwaddr.sa_data[3],  
+	(unsigned char)ifr.ifr_hwaddr.sa_data[4],  
+	(unsigned char)ifr.ifr_hwaddr.sa_data[5]);  
+	close(sd);  
+	return string(mac);  
+}
+
+string SysMsg::get_local_ip(const char *eth_inf)
+{
+	char ip[128];
+	int sd;
+	struct sockaddr_in sin;  
+	struct ifreq ifr;  
+	sd = socket(AF_INET, SOCK_DGRAM, 0);  
+	if (-1 == sd)  
+	{  
+		printf("socket error: %s\n", strerror(errno));  
+		return NULL;        
+	}  
+	strncpy(ifr.ifr_name, eth_inf, IFNAMSIZ);  
+	ifr.ifr_name[IFNAMSIZ - 1] = 0;   
+	if (ioctl(sd, SIOCGIFADDR, &ifr) < 0)  
+	{  
+		printf("ioctl error: %s\n", strerror(errno));  
+		close(sd);  
+		return NULL;  
+	}  
+	memcpy(&sin, &ifr.ifr_addr, sizeof(sin));  
+	snprintf(ip, IP_SIZE, "%s", inet_ntoa(sin.sin_addr));  
+	close(sd);  
+	return string(ip);  
+}
+
+string SysMsg::get_system_time(void)
+{
+	char buf[128];
+    struct timeval tv;
+    struct timezone tz;
+    struct tm *p;
+    gettimeofday(&tv, &tz);
+    p = localtime(&tv.tv_sec);
+	sprintf(buf,"%d-%d-%d-%d:%d:%d-%3ld", 1900+p->tm_year, 1+p->tm_mon, p->tm_mday, p->tm_hour, p->tm_min, p->tm_sec, tv.tv_usec);
+    return string(buf);
+}
+
 /********************TCP Server**********************/
 
 TCPServer::TCPServer(int Debug,int Block)
@@ -23,7 +124,7 @@ TCPServer::TCPServer(void)
 
 TCPServer::~TCPServer(void)
 {
-	
+	//
 }
 
 int TCPServer::socketConnect(int PORT)

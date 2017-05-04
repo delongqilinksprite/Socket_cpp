@@ -4,7 +4,7 @@
 # * date : 2017.01.01
 # * mail : derron2016@163.com                                                                                                   # */
 
-all:tcp_server tcp_client udp_server udp_client
+all:tcp_server tcp_client udp_server udp_client sysmsg
 
 tcp_server:tcp_server.o Socket.o
 	g++ tcp_server.o Socket.o -o tcp_server
@@ -33,5 +33,11 @@ udp_client:udp_client.o Socket.o
 udp_client.o:udp_client.c
 	g++ -c udp_client.c
 
+sysmsg:sysmsg.o Socket.o
+	g++ sysmsg.o Socket.o -o sysmsg
+
+sysmsg.o:sysmsg.c
+	g++ -c sysmsg.c
+
 clean:
-	rm *.o tcp_server tcp_client udp_server udp_client
+	rm *.o tcp_server tcp_client udp_server udp_client sysmsg
