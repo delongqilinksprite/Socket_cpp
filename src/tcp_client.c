@@ -15,7 +15,7 @@ int main()
 	char rev_buf[4096];
 	char sed_buf[] = "I'm from tcp client!";
 	TCPClient client(debug,block);
-	if (client.socketConnect("127.0.0.1", 1234) < 0) 
+	if (client.socketConnect("127.0.0.1", 6660) < 0) 
 	{
 		printf("socket connect error!\n");
 		return -1;

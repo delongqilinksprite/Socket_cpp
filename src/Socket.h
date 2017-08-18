@@ -116,4 +116,38 @@ private:
 	struct sockaddr_in client;
 };
 
+class UDPAdvertiser
+{
+public:
+	UDPAdvertiser(void);
+	UDPAdvertiser(int Debug,int Block);
+	~UDPAdvertiser(void);
+	int socketConnect(int PORT);
+	int transmit(const char *data);
+	void socketDisconnect(void);
+private:
+	int Block;
+	int udpFD;
+	int Debug;
+	int nlen;
+	struct sockaddr_in addrto; 
+};
+
+class UDPListener
+{
+public:
+	UDPListener(void);
+	UDPListener(int Debug,int Block);
+	~UDPListener(void);
+	int socketConnect(int PORT);
+	int receive(char *data);
+	void socketDisconnect(void);
+private:
+	int Block;
+	int udpFD;
+	int Debug;
+	int len;
+	struct sockaddr_in from;
+};
+
 #endif

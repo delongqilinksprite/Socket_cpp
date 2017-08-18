@@ -4,7 +4,7 @@
 # * date : 2017.01.01
 # * mail : derron2016@163.com                                                                                                   # */
 
-all:tcp_server tcp_client udp_server udp_client sysmsg
+all:tcp_server tcp_client udp_server udp_client sysmsg udp_advertiser udp_listener 
 
 tcp_server:tcp_server.o Socket.o
 	g++ tcp_server.o Socket.o -o tcp_server
@@ -39,5 +39,17 @@ sysmsg:sysmsg.o Socket.o
 sysmsg.o:sysmsg.c
 	g++ -c sysmsg.c
 
+udp_advertiser:udp_advertiser.o Socket.o
+	g++ udp_advertiser.o Socket.o -o udp_advertiser
+
+udp_advertiser.o:udp_advertiser.c
+	g++ -c udp_advertiser.c
+
+udp_listener:udp_listener.o Socket.o
+	g++ udp_listener.o Socket.o -o udp_listener
+
+udp_listener.o:udp_listener.c
+	g++ -c udp_listener.c
+
 clean:
-	rm *.o tcp_server tcp_client udp_server udp_client sysmsg
+	rm *.o tcp_server tcp_client udp_server udp_client sysmsg udp_listener udp_advertiser

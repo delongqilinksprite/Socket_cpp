@@ -448,3 +448,135 @@ void UDPClient::socketDisconnect(void)
 {
 	close(udpFD);
 }
+
+/********************UDP Advertiser**********************/
+
+UDPAdvertiser::UDPAdvertiser(void)
+{
+	Debug = 0;
+	Block = 1;
+}
+
+UDPAdvertiser::UDPAdvertiser(int Debug,int Block)
+{
+	this->Debug = Debug;
+	this->Block = Block;
+}
+
+int UDPAdvertiser::socketConnect(int PORT)
+{
+	setvbuf(stdout, NULL, _IONBF, 0);   
+	fflush(stdout);   
+	if ((udpFD = socket(AF_INET, SOCK_DGRAM, 0)) == -1)   
+	{   
+		if(Debug == 1)
+			cout<<"socket error"<<endl;   
+		return -1;  
+	}  
+	const int opt = 1;  
+	int nb = 0;  
+	nb = setsockopt(udpFD, SOL_SOCKET, SO_BROADCAST, (char *)&opt, sizeof(opt));  
+	if(nb == -1)  
+	{  
+		if(Debug == 1)
+			cout<<"set socket error..."<<endl;  
+		return -1;  
+	}   
+	bzero(&addrto, sizeof(struct sockaddr_in));  
+	addrto.sin_family=AF_INET;  
+	addrto.sin_addr.s_addr=htonl(INADDR_BROADCAST);  
+	addrto.sin_port=htons(PORT);  
+	nlen=sizeof(addrto);
+	return 0;
+}
+
+int UDPAdvertiser::transmit(const char *data)
+{
+	int ret=sendto(udpFD, data, strlen(data), 0, (sockaddr*)&addrto, nlen);  
+	return ret;
+}
+
+void UDPAdvertiser::socketDisconnect(void)
+{
+	close(udpFD);
+}
+
+UDPAdvertiser::~UDPAdvertiser(void)
+{
+	//
+}
+
+/********************UDP Listener**********************/
+UDPListener::UDPListener()
+{
+	Debug = 0;
+	Block = 1;
+}
+
+UDPListener::UDPListener(int Debug,int Block)
+{
+	this->Debug = Debug;
+	this->Block = Block;
+}
+
+UDPListener::~UDPListener(void)
+{
+	//
+}
+
+int UDPListener::socketConnect(int PORT)
+{
+	setvbuf(stdout, NULL, _IONBF, 0);   
+	fflush(stdout);  
+	struct sockaddr_in addrto;  
+	bzero(&addrto, sizeof(struct sockaddr_in));  
+	addrto.sin_family = AF_INET;  
+	addrto.sin_addr.s_addr = htonl(INADDR_ANY);  
+	addrto.sin_port = htons(PORT);   
+	bzero(&from, sizeof(struct sockaddr_in));  
+	from.sin_family = AF_INET;  
+	from.sin_addr.s_addr = htonl(INADDR_ANY);  
+	from.sin_port = htons(PORT);  
+	if ((udpFD = socket(AF_INET, SOCK_DGRAM, 0)) == -1)   
+	{     
+		if(Debug == 1)
+			cout<<"socket error"<<endl;   
+		return -1;  
+	}     
+	const int opt = 1;  
+	int nb = 0;  
+	nb = setsockopt(udpFD, SOL_SOCKET, SO_BROADCAST, (char *)&opt, sizeof(opt));  
+	if(nb == -1)  
+	{  
+		if(Debug == 1)
+			cout<<"set socket error..."<<endl;  
+		return -1;  
+	}  
+	if(bind(udpFD,(struct sockaddr *)&(addrto), sizeof(struct sockaddr_in)) == -1)   
+	{     
+		if(Debug == 1)
+			cout<<"bind error..."<<endl;  
+		return -1;  
+	}  
+	len = sizeof(sockaddr_in);  
+}
+
+int UDPListener::receive(char *data)
+{
+	char buf[MaxLen];
+	int ret = -1;
+	if(ret=recvfrom(udpFD, buf, MaxLen, 0, (struct sockaddr*)&from,(socklen_t*)&len) < 0)
+	{
+		return -1;
+	}
+	//buf[ret]='\0';  
+	strcpy(data,buf);
+	return ret;
+}
+
+void UDPListener::socketDisconnect(void)
+{
+	close(udpFD);
+}
+
+
